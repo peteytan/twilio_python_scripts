@@ -34,6 +34,23 @@ recordings. After the recordings are downloaded, they are deleted
 Switching DELETE to False will result in just downloading the recordings, and
 likewise, switching DOWNLOAD to False will delete the recordings.
 
+### Subaccount Recordings
+This file looks for all subaccounts and then finds recordings inside all the
+subaccounts and the main account, and writes it to a .csv.
+
+It runs as a multi-threaded script, and the threads can be increased to 100,
+which is Twilio's default max concurrent API calls you can have.
+
+Currently, it uses the iter() method to grab the entire list of recordings.
+It can be changed to a list() method with the relevant filters.
+
+We will have two separate queues, one to pull all the subacounts listed with a
+parent account, and the second queues starts taking recordings from these
+subaccounts. The resulting csv will be a mess of entries, but this is easily
+sorted after
+
+Deleted recordings do not get pulled up in this query
+
 ### Purchase Phone Numbers
 This script purchases a set of phone numbers that match criteria you specify in 
 a .csv file. The script is a single function purchase_phone_numbers that takes 
@@ -71,8 +88,7 @@ list to see what numbers have not been used in that period and presents back to
 the user, the list of 'unused numbers' and outputs it to a .csv file. It also
 provides the option to delete these unused numbers in your shell.
 
-### Recordings by Subaccount
-to-do
+
 
 ## Example Code
 ---------------
@@ -89,24 +105,3 @@ the computation.
 2) The documentation implies that you only need the main parameters (To, From
 , etc) similar to the ones you use when making outbound requests. The function
 for validation requires ALL parameters, so just grab the entire request body.
-
-### Ghost Legs
-Ghost Legs solves the problem of detecting early media in an outbound call use
-case. The scenario is that an agent is sitting in a conference and when making
-an outbound call to get them in the conference, is unable to hear if the other
-side's phone is disconnected.
-
-The flow works this way:
-
-1) Agent gets placed in conference
-
-2) Agent does an outbound dial to a Twilio number
-
-3) One end of that Twilio number connects to the conference, thus making the 
-conference "live".
-
-4) The other end of that Twilio call points to TwiML that executes a <Dial> to
-the actual number that needs to be called.
-
-5) Agent in conference is able to hear ringing/phone out of service messages etc
-as the conference is live and you can hear ringing associated with a <Dial>
